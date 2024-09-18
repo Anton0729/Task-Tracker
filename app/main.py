@@ -1,4 +1,3 @@
-from smtplib import SMTPException
 from fastapi import FastAPI, Depends, HTTPException, Query
 from fastapi_pagination import add_pagination
 
@@ -100,7 +99,7 @@ async def read_tasks(
     pagination_info = {
         "page": page,
         "size": size,
-        "total": tasks,
+        "total": len(tasks),
     }
 
     return {
