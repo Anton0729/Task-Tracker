@@ -14,7 +14,12 @@ from auth.dependencies import get_current_user, role_required
 from auth.routes import router as auth_router
 
 # Initialize FastAPI app
-app = FastAPI(title="Task Tracker")
+app = FastAPI(
+    title="Task Tracker",
+    description="This project is a simplified backend for a team task tracker similar to Trello or Jira. "
+                "It allows users to read, create, edit, and delete tasks with various attributes "
+                "and includes basic role-based authorization and mock email notifications."
+)
 
 # Include authentication routes from the auth module
 app.include_router(auth_router, prefix="/auth", tags=["auth"])
