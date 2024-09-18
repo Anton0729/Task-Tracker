@@ -70,6 +70,12 @@ async def read_tasks(
         page: int = Query(1, ge=1),  # Page number, default is 1
         size: int = Query(10, ge=1, le=100),  # Page size, default is 10, max 100
 ):
+    """
+    Retrieve a paginated list of tasks.
+
+    - **page**: Page number to retrieve (default is 1).
+    - **size**: Number of tasks per page (default is 10, max 100).
+    """
     offset = (page - 1) * size  # Calculate the offset for pagination
     query = (select(Task).options(selectinload(Task.assignees)).offset(offset).limit(size))
 
@@ -115,6 +121,11 @@ async def read_task(
         session: AsyncSession = Depends(get_db),
         current_user: UserModel = Depends(get_current_user),
 ):
+    """
+    Retrieve a specific task by its ID.
+
+    - **task_id**: ID of the task to retrieve.
+    """
     task = await get_task_or_404(task_id, session)
 
     task_response = {
@@ -136,6 +147,30 @@ async def create_task(
         session: AsyncSession = Depends(get_db),
         current_user: UserModel = Depends(get_current_user),
 ):
+    """
+    Create a new task.
+
+     **Request Body:**
+
+    - **title** (string): The title of the task.
+    - **responsible_person_id** (integer): The ID of the user responsible for the task.
+    - **assignees** (array of integers): A list of user IDs assigned to the task.
+    - **status** (string): The status of the task. Valid values are "TODO", "In progress", "Done".
+    - **priority** (integer): The priority level of the task.
+
+    **Example Request Body:**
+
+    ```json
+    {
+      "title": "Fix login bug",
+      "responsible_person_id": 1,
+      "assignees": [2, 3],
+      "status": "TODO",
+      "priority": 1
+    }
+    ```
+    """
+
     # Ensure that responsible person exists in DB
     responsible_person = await get_user_or_404(task_create.responsible_person_id, session)
 
@@ -177,6 +212,33 @@ async def update_task(
         session: AsyncSession = Depends(get_db),
         current_user: UserModel = Depends(get_current_user),
 ):
+    """
+    Update an existing task in the task tracker.
+
+    **Parameters:**
+
+    - **task_id** (integer): The ID of the task to be updated. This ID should correspond to an existing task in the database.
+
+    **Request Body:**
+
+    - **title** (string): The updated title of the task.
+    - **responsible_person_id** (integer): The updated ID of the user responsible for the task.
+    - **assignees** (array of integers): A list of user IDs to be assigned to the task. The list can be empty.
+    - **status** (string): The updated status of the task. Valid values are "TODO", "In progress", "Done".
+    - **priority** (integer): The updated priority level of the task.
+
+    **Example Request Body:**
+
+    ```json
+    {
+      "title": "Update login bug fix",
+      "responsible_person_id": 2,
+      "assignees": [3, 4],
+      "status": "In progress",
+      "priority": 2
+    }
+    ```
+    """
     task = await get_task_or_404(task_id, session)
 
     # Ensure that responsible person exists in DB
@@ -224,6 +286,11 @@ async def delete_task(
             role_required(StatusRole.ADMIN)
         ),
 ):
+    """
+    Delete a task by its ID.
+
+    - **task_id**: ID of the task to delete.
+    """
     task = await get_task_or_404(task_id, session)
 
     await session.delete(task)
