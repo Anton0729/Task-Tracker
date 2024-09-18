@@ -15,7 +15,7 @@ It allows users to read, create, edit, and delete tasks with various attributes 
 6. **Pagination**: Implement pagination for listing tasks.
 7. **Mock Email Sending**: Mock email notifications are sent to the responsible person when the task status changes.
 8. **PgAdmin for Visualization**: Use PgAdmin for visualizing and managing the PostgreSQL database.
-9**API Documentation in Swagger** - Provides interactive API documentation using Swagger, accessible at `/docs`.
+9. **API Documentation in Swagger** - Provides interactive API documentation using Swagger, accessible at `/docs`.
 
 
 ## <ins> Setup Instructions
