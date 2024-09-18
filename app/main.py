@@ -222,7 +222,7 @@ async def delete_task(
         task_id: int,
         session: AsyncSession = Depends(get_db),
         current_user: UserModel = Depends(
-            role_required(StatusRole.ADMIN, StatusRole.MANAGER)
+            role_required(StatusRole.ADMIN)
         ),
 ):
     task = await get_task_or_404(task_id, session)
@@ -233,8 +233,3 @@ async def delete_task(
 
 
 add_pagination(app)
-
-if __name__ == "__main__":
-    import uvicorn
-
-    uvicorn.run("app.main:app", reload=True)

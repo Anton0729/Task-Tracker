@@ -1,7 +1,7 @@
+import enum
 from sqlalchemy import Column, Integer, String, Enum, ForeignKey, Table
 from sqlalchemy.orm import relationship
 from .database import Base
-import enum
 
 # additional model for relationship "many-to-many"
 task_assignees = Table(
