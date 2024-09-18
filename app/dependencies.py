@@ -1,4 +1,4 @@
-from .database import SessionLocal, engine, Base
+from .database import SessionLocal
 from sqlalchemy.ext.asyncio import AsyncSession
 
 

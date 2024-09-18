@@ -1,14 +1,13 @@
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
-from sqlalchemy.orm import Session
+
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
-from app.database import Base, engine
 from app.dependencies import get_db
-from app.models import User
+from app.models import User, StatusRole
 from app.config import settings
 
 from auth.models import TokenData
@@ -33,7 +32,7 @@ async def authenticate_user(db: AsyncSession, username: str, password: str):
 
 
 async def get_current_user(
-        db: AsyncSession = Depends(get_db), token: str = Depends(oauth2_scheme)
+    db: AsyncSession = Depends(get_db), token: str = Depends(oauth2_scheme)
 ):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -52,3 +51,17 @@ async def get_current_user(
     if user is None:
         raise credentials_exception
     return user
+
+
+# Dependency to ensure that a user has the required role to perform certain actions
+def role_required(required_role: StatusRole):
+    def role_checker(current_user: User = Depends(get_current_user)):
+        # Check if the current user has the required role, otherwise raise a 403 error
+        if current_user.role != required_role:
+            raise HTTPException(
+                status_code=403,
+                detail=f"Action requires '{required_role.value}' role",
+            )
+        return current_user
+
+    return role_checker

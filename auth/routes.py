@@ -1,24 +1,21 @@
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
-from sqlalchemy.orm import Session
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import User
+from app.schemas import UserCreate, UserResponse
 
-from .utils import create_access_token
+from .utils import create_access_token, get_password_hash
 from .dependencies import authenticate_user, get_db, get_user
 from .models import Token
-from app.schemas import UserCreate, UserResponse
-from .utils import get_password_hash  # Import get_password_hash here
 
 router = APIRouter()
 
 
 @router.post("/token", response_model=Token)
 async def login_for_access_token(
-    form_data: OAuth2PasswordRequestForm = Depends(),
-    db: AsyncSession = Depends(get_db)
+        form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)
 ):
     """
     Endpoint to authenticate a user and return an access token.
@@ -32,7 +29,9 @@ async def login_for_access_token(
             headers={"WWW-Authenticate": "Bearer"},
         )
     # Create an access token for the authenticated user
-    access_token = create_access_token(data={"sub": user.username, "role": user.role.value})
+    access_token = create_access_token(
+        data={"sub": user.username, "role": user.role.value}
+    )
     return {"access_token": access_token, "token_type": "bearer"}
 
 
@@ -45,7 +44,9 @@ async def signup(user: UserCreate, db: AsyncSession = Depends(get_db)):
     if db_user:
         raise HTTPException(status_code=400, detail="Username already registered")
     hashed_password = get_password_hash(user.password)
-    db_user = User(username=user.username, hashed_password=hashed_password, role=user.role)
+    db_user = User(
+        username=user.username, hashed_password=hashed_password, role=user.role
+    )
     db.add(db_user)
     await db.commit()
     await db.refresh(db_user)
